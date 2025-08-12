@@ -1,0 +1,6 @@
+apiVersion: v2
+name: lab8
+description: Helm chart for Lab8 (Kubernetes migration of ML services)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

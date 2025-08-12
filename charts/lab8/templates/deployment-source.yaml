@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lab8.fullname" . }}-source
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "lab8.name" . }}
+      component: source
+  template:
+    metadata:
+      labels:
+        app: {{ include "lab8.name" . }}
+        component: source
+    spec:
+      containers:
+        - name: source
+          image: {{ .Values.source.image }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REDIS_HOST
+              value: {{ .Values.redis.host | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: REDIS_DB
+              value: {{ .Values.redis.db | quote }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
