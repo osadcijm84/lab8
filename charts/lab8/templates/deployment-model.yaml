@@ -14,6 +14,30 @@ spec:
         app: {{ include "lab8.name" . }}
         component: model
     spec:
+      volumes:
+        - name: model-artifacts
+          emptyDir: {}
+        - name: model-zip
+          configMap:
+            name: {{ include "lab8.fullname" . }}-model-zip
+            items:
+              - key: model.zip
+                path: model.zip
+      initContainers:
+        - name: init-model-artifacts
+          image: alpine:3.19
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              set -e
+              mkdir -p /opt/model
+              unzip -q /opt/in/model.zip -d /opt/model
+          volumeMounts:
+            - name: model-artifacts
+              mountPath: /opt/model
+            - name: model-zip
+              mountPath: /opt/in
       containers:
         - name: model
           image: {{ .Values.model.image }}
@@ -27,6 +51,11 @@ spec:
               value: {{ .Values.redis.port | quote }}
             - name: REDIS_DB
               value: {{ .Values.redis.db | quote }}
+            - name: MODEL_DIR
+              value: /opt/model
+          volumeMounts:
+            - name: model-artifacts
+              mountPath: /opt/model
           resources: {{- toYaml .Values.resources | nindent 12 }}
 ---
 apiVersion: v1
